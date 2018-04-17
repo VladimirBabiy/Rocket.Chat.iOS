@@ -34,8 +34,9 @@ class SubscriptionsPageViewController: UIPageViewController {
 
         // Setup page control
         let pageControl = UIPageControl()
-        pageControl.numberOfPages = 2
-        pageControl.currentPage = 1
+        //pageControl.numberOfPages = 2
+        pageControl.numberOfPages = 1
+        pageControl.currentPage = 0
         pageControl.isHidden = !AppManager.supportsMultiServer
         view.addSubview(pageControl)
 
@@ -80,24 +81,26 @@ class SubscriptionsPageViewController: UIPageViewController {
     // MARK: Change controllers externally
 
     func showServersList(animated: Bool = true) {
-        guard AppManager.supportsMultiServer else { return }
+        /*guard AppManager.supportsMultiServer else { return }
         guard let serversController = self.serversController else { return }
         setViewControllers([serversController], direction: .reverse, animated: animated, completion: nil)
-        pageControl?.currentPage = 0
+        pageControl?.currentPage = 0*/
     }
 
     func showSubscriptionsList(animated: Bool = true) {
         guard let subscriptionsController = self.subscriptionsController else { return }
         setViewControllers([subscriptionsController], direction: .forward, animated: animated, completion: nil)
-        pageControl?.currentPage = 1
+        //pageControl?.currentPage = 1
+        pageControl?.currentPage = 0
     }
 
     @objc private func dotTapped(pageControl: UIPageControl) {
-        if pageControl.currentPage == 0 {
+        /*if pageControl.currentPage == 0 {
             showServersList()
         } else if pageControl.currentPage == 1 {
             showSubscriptionsList()
-        }
+        }*/
+        showSubscriptionsList()
     }
 
 }
@@ -106,11 +109,12 @@ extension SubscriptionsPageViewController: UIPageViewControllerDelegate {
 
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         if completed {
-            if previousViewControllers.first == serversController {
+           /* if previousViewControllers.first == serversController {
                 pageControl?.currentPage = 1
             } else {
                 pageControl?.currentPage = 0
-            }
+            }*/
+            pageControl?.currentPage = 0
         }
     }
 
@@ -121,19 +125,23 @@ extension SubscriptionsPageViewController: UIPageViewControllerDataSource {
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard AppManager.supportsMultiServer else { return nil }
 
-        if viewController == subscriptionsController {
+        /*if viewController == subscriptionsController {
             return serversController
-        }
+        }*/
 
+        return subscriptionsController
+        
         return nil
     }
 
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard AppManager.supportsMultiServer else { return nil }
 
-        if viewController == serversController {
+        /*if viewController == serversController {
             return subscriptionsController
-        }
+        }*/
+        
+        return subscriptionsController
 
         return nil
     }

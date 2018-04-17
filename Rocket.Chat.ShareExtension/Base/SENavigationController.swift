@@ -11,7 +11,7 @@ import MobileCoreServices
 
 final class SENavigationController: UINavigationController {
     func loadContent(_ store: SEStore) -> SEAction? {
-        let itemProviders = (extensionContext?.inputItems.first as? NSExtensionItem)?.attachments?.compactMap {
+        let itemProviders = (extensionContext?.inputItems.first as? NSExtensionItem)?.attachments?.flatMap {
             $0 as? NSItemProvider
         } ?? []
 

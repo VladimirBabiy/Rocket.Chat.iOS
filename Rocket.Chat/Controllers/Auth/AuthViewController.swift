@@ -44,7 +44,7 @@ final class AuthViewController: BaseViewController {
             }
         }
     }
-
+    
     @IBOutlet weak var onePasswordButton: UIButton! {
         didSet {
             onePasswordButton.isHidden = !OnePasswordExtension.shared().isAppExtensionAvailable()
@@ -122,6 +122,8 @@ final class AuthViewController: BaseViewController {
         if !connecting {
             textFieldUsername.becomeFirstResponder()
         }
+        
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
     override func viewWillAppear(_ animated: Bool) {

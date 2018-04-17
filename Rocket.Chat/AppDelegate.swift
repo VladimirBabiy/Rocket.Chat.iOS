@@ -33,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             AuthSettingsManager.shared.updateCachedSettings()
             WindowManager.open(.chat)
         } else {
-            WindowManager.open(.auth(serverUrl: "", credentials: nil))
+            WindowManager.open(.auth(serverUrl: "https://c.voip.review", credentials: nil))
         }
 
         return true

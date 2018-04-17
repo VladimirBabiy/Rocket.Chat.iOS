@@ -37,7 +37,7 @@ final class ChatDataController {
     var data: [ChatData] = [] {
         didSet {
             messagesUsernames.removeAll()
-            messagesUsernames.formUnion(data.compactMap { $0.message?.user?.username })
+            messagesUsernames.formUnion(data.flatMap { $0.message?.user?.username })
         }
     }
 
@@ -117,7 +117,7 @@ final class ChatDataController {
     func indexPathOf(_ identifier: String) -> IndexPath? {
         return data.filter { item in
             return item.identifier == identifier
-            }.compactMap { item in
+            }.flatMap { item in
             item.indexPath
         }.first
     }
@@ -126,7 +126,7 @@ final class ChatDataController {
         return data.filter { item in
             guard let messageIdentifier = item.message?.identifier else { return false }
             return messageIdentifier == identifier
-            }.compactMap { item in
+            }.flatMap { item in
             item.indexPath
         }.first
     }
