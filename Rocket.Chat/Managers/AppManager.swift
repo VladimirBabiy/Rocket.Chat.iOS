@@ -12,7 +12,7 @@ import RealmSwift
 struct AppManager {
 
     private static let kApplicationServerURLKey = "RC_SERVER_URL"
-    private static let DefaultServer = "https://c.voip.review"
+    private static let DefaultServer = AppDelegate.Server
 
     /**
      The app allows the user to fix a URL and disable the multi-server support
@@ -100,7 +100,7 @@ extension AppManager {
 
                     WindowManager.open(.chat)
                 } else {
-                    WindowManager.open(.auth(serverUrl: "https://c.voip.review", credentials: nil))
+                    WindowManager.open(.auth(serverUrl: AppDelegate.Server, credentials: nil))
                 }
             }
         }

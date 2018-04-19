@@ -101,7 +101,7 @@ class MainChatViewController: SideMenuController, SideMenuControllerDelegate {
     }
 
     func openAddNewTeamController() {
-        AppManager.addServer(serverUrl: "https://c.voip.review")
+        AppManager.addServer(serverUrl: AppDelegate.Server)
     }
 }
 

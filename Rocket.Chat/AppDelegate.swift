@@ -15,6 +15,7 @@ import GoogleSignIn
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    static let Server = "https://c.voip.review"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         Launcher().prepareToLaunch(with: launchOptions)
@@ -33,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             AuthSettingsManager.shared.updateCachedSettings()
             WindowManager.open(.chat)
         } else {
-            WindowManager.open(.auth(serverUrl: "https://c.voip.review", credentials: nil))
+            WindowManager.open(.auth(serverUrl: AppDelegate.Server, credentials: nil))
         }
 
         return true
