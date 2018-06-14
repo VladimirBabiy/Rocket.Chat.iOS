@@ -444,7 +444,7 @@
 		807FB53F2045F36E00E21429 /* EmojioneSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FB53E2045F36D00E21429 /* EmojioneSpec.swift */; };
 		807FB55B2046E7DD00E21429 /* SERoomsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FB55A2046E7DD00E21429 /* SERoomsViewController.swift */; };
 		807FB55E2046E7DD00E21429 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 807FB55C2046E7DD00E21429 /* Main.storyboard */; };
-		807FB5622046E7DD00E21429 /* Rocket.Chat.ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 807FB5582046E7DD00E21429 /* Rocket.Chat.ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		807FB5622046E7DD00E21429 /* voip.review.ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 807FB5582046E7DD00E21429 /* voip.review.ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		807FB569204729E500E21429 /* SEServersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FB568204729E500E21429 /* SEServersViewController.swift */; };
 		807FB56B20472A0F00E21429 /* SERoomsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FB56A20472A0F00E21429 /* SERoomsViewModel.swift */; };
 		807FB56F20472B6A00E21429 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 807FB57120472B6A00E21429 /* Localizable.strings */; };
@@ -619,7 +619,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				807FB5622046E7DD00E21429 /* Rocket.Chat.ShareExtension.appex in Embed App Extensions */,
+				807FB5622046E7DD00E21429 /* voip.review.ShareExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -884,14 +884,14 @@
 		41DC7A231D386CA800896FC0 /* DateExtensionsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateExtensionsSpec.swift; sourceTree = "<group>"; };
 		41DCB8251DDC828200E1197F /* SubscriptionSearchMoreView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SubscriptionSearchMoreView.xib; sourceTree = "<group>"; };
 		41DCB8271DDC82E000E1197F /* SubscriptionSearchMoreView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSearchMoreView.swift; sourceTree = "<group>"; };
-		41DF76DF1D2C50710028DBF8 /* Rocket.Chat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rocket.Chat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		41DF76DF1D2C50710028DBF8 /* voip.review.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = voip.review.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		41DF76E21D2C50710028DBF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		41DF76E91D2C50710028DBF8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		41DF76EC1D2C50720028DBF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		41DF76EE1D2C50720028DBF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		41DF76F31D2C50720028DBF8 /* Rocket.ChatTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Rocket.ChatTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		41DF76F31D2C50720028DBF8 /* voip.reviewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = voip.reviewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		41DF76F91D2C50720028DBF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		41DF76FE1D2C50720028DBF8 /* Rocket.ChatUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Rocket.ChatUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		41DF76FE1D2C50720028DBF8 /* voip.reviewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = voip.reviewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		41DF77021D2C50720028DBF8 /* RocketChatUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RocketChatUITests.swift; sourceTree = "<group>"; };
 		41DF77041D2C50720028DBF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		41E2F9FE1D414DE800238DFD /* Chat.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Chat.storyboard; path = Storyboards/Chat.storyboard; sourceTree = "<group>"; };
@@ -1064,7 +1064,7 @@
 		807C7C0F20751F40006B600E /* SpotlightClientSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotlightClientSpec.swift; sourceTree = "<group>"; };
 		807FB53C2044B49800E21429 /* Emojione+Transform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Emojione+Transform.swift"; sourceTree = "<group>"; };
 		807FB53E2045F36D00E21429 /* EmojioneSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojioneSpec.swift; sourceTree = "<group>"; };
-		807FB5582046E7DD00E21429 /* Rocket.Chat.ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Rocket.Chat.ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		807FB5582046E7DD00E21429 /* voip.review.ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = voip.review.ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		807FB55A2046E7DD00E21429 /* SERoomsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SERoomsViewController.swift; sourceTree = "<group>"; };
 		807FB55D2046E7DD00E21429 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		807FB55F2046E7DD00E21429 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2007,10 +2007,10 @@
 		41DF76E01D2C50710028DBF8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				41DF76DF1D2C50710028DBF8 /* Rocket.Chat.app */,
-				41DF76F31D2C50720028DBF8 /* Rocket.ChatTests.xctest */,
-				41DF76FE1D2C50720028DBF8 /* Rocket.ChatUITests.xctest */,
-				807FB5582046E7DD00E21429 /* Rocket.Chat.ShareExtension.appex */,
+				41DF76DF1D2C50710028DBF8 /* voip.review.app */,
+				41DF76F31D2C50720028DBF8 /* voip.reviewTests.xctest */,
+				41DF76FE1D2C50720028DBF8 /* voip.reviewUITests.xctest */,
+				807FB5582046E7DD00E21429 /* voip.review.ShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2835,9 +2835,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		41DF76DE1D2C50710028DBF8 /* Rocket.Chat */ = {
+		41DF76DE1D2C50710028DBF8 /* voip.review */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 41DF77071D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "Rocket.Chat" */;
+			buildConfigurationList = 41DF77071D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "voip.review" */;
 			buildPhases = (
 				A981302F274A047494A90424 /* [CP] Check Pods Manifest.lock */,
 				D37272A11E13E60E00A25E1A /* SwiftLint */,
@@ -2853,14 +2853,14 @@
 			dependencies = (
 				807FB5612046E7DD00E21429 /* PBXTargetDependency */,
 			);
-			name = Rocket.Chat;
+			name = voip.review;
 			productName = Rocket.Chat;
-			productReference = 41DF76DF1D2C50710028DBF8 /* Rocket.Chat.app */;
+			productReference = 41DF76DF1D2C50710028DBF8 /* voip.review.app */;
 			productType = "com.apple.product-type.application";
 		};
-		41DF76F21D2C50720028DBF8 /* Rocket.ChatTests */ = {
+		41DF76F21D2C50720028DBF8 /* voip.reviewTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 41DF770A1D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "Rocket.ChatTests" */;
+			buildConfigurationList = 41DF770A1D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "voip.reviewTests" */;
 			buildPhases = (
 				2BDC1BE659AE933E0AFDD641 /* [CP] Check Pods Manifest.lock */,
 				41DF76EF1D2C50720028DBF8 /* Sources */,
@@ -2874,14 +2874,14 @@
 			dependencies = (
 				41DF76F51D2C50720028DBF8 /* PBXTargetDependency */,
 			);
-			name = Rocket.ChatTests;
+			name = voip.reviewTests;
 			productName = Rocket.ChatTests;
-			productReference = 41DF76F31D2C50720028DBF8 /* Rocket.ChatTests.xctest */;
+			productReference = 41DF76F31D2C50720028DBF8 /* voip.reviewTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		41DF76FD1D2C50720028DBF8 /* Rocket.ChatUITests */ = {
+		41DF76FD1D2C50720028DBF8 /* voip.reviewUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 41DF770D1D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "Rocket.ChatUITests" */;
+			buildConfigurationList = 41DF770D1D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "voip.reviewUITests" */;
 			buildPhases = (
 				41DF76FA1D2C50720028DBF8 /* Sources */,
 				41DF76FB1D2C50720028DBF8 /* Frameworks */,
@@ -2892,14 +2892,14 @@
 			dependencies = (
 				41DF77001D2C50720028DBF8 /* PBXTargetDependency */,
 			);
-			name = Rocket.ChatUITests;
+			name = voip.reviewUITests;
 			productName = Rocket.ChatUITests;
-			productReference = 41DF76FE1D2C50720028DBF8 /* Rocket.ChatUITests.xctest */;
+			productReference = 41DF76FE1D2C50720028DBF8 /* voip.reviewUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		807FB5572046E7DD00E21429 /* Rocket.Chat.ShareExtension */ = {
+		807FB5572046E7DD00E21429 /* voip.review.ShareExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 807FB5662046E7DD00E21429 /* Build configuration list for PBXNativeTarget "Rocket.Chat.ShareExtension" */;
+			buildConfigurationList = 807FB5662046E7DD00E21429 /* Build configuration list for PBXNativeTarget "voip.review.ShareExtension" */;
 			buildPhases = (
 				9F70AE405C2B948FD0506A9A /* [CP] Check Pods Manifest.lock */,
 				807FB5542046E7DD00E21429 /* Sources */,
@@ -2910,9 +2910,9 @@
 			);
 			dependencies = (
 			);
-			name = Rocket.Chat.ShareExtension;
+			name = voip.review.ShareExtension;
 			productName = Rocket.Chat.ShareExtension;
-			productReference = 807FB5582046E7DD00E21429 /* Rocket.Chat.ShareExtension.appex */;
+			productReference = 807FB5582046E7DD00E21429 /* voip.review.ShareExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -2923,7 +2923,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0920;
 				LastUpgradeCheck = 0930;
-				ORGANIZATIONNAME = Rocket.Chat;
+				ORGANIZATIONNAME = DIDWW;
 				TargetAttributes = {
 					41DF76DE1D2C50710028DBF8 = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -2946,13 +2946,13 @@
 					};
 					41DF76F21D2C50720028DBF8 = {
 						CreatedOnToolsVersion = 7.3.1;
-						DevelopmentTeam = S6UPZG7ZR3;
+						DevelopmentTeam = 5293KBQGPA;
 						LastSwiftMigration = 0900;
 						TestTargetID = 41DF76DE1D2C50710028DBF8;
 					};
 					41DF76FD1D2C50720028DBF8 = {
 						CreatedOnToolsVersion = 7.3.1;
-						DevelopmentTeam = S6UPZG7ZR3;
+						DevelopmentTeam = 5293KBQGPA;
 						LastSwiftMigration = 0900;
 						TestTargetID = 41DF76DE1D2C50710028DBF8;
 					};
@@ -2968,7 +2968,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 41DF76DA1D2C50710028DBF8 /* Build configuration list for PBXProject "Rocket.Chat" */;
+			buildConfigurationList = 41DF76DA1D2C50710028DBF8 /* Build configuration list for PBXProject "voip.review" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -2988,10 +2988,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				41DF76DE1D2C50710028DBF8 /* Rocket.Chat */,
-				41DF76F21D2C50720028DBF8 /* Rocket.ChatTests */,
-				41DF76FD1D2C50720028DBF8 /* Rocket.ChatUITests */,
-				807FB5572046E7DD00E21429 /* Rocket.Chat.ShareExtension */,
+				41DF76DE1D2C50710028DBF8 /* voip.review */,
+				41DF76F21D2C50720028DBF8 /* voip.reviewTests */,
+				41DF76FD1D2C50720028DBF8 /* voip.reviewUITests */,
+				807FB5572046E7DD00E21429 /* voip.review.ShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -3871,17 +3871,17 @@
 /* Begin PBXTargetDependency section */
 		41DF76F51D2C50720028DBF8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 41DF76DE1D2C50710028DBF8 /* Rocket.Chat */;
+			target = 41DF76DE1D2C50710028DBF8 /* voip.review */;
 			targetProxy = 41DF76F41D2C50720028DBF8 /* PBXContainerItemProxy */;
 		};
 		41DF77001D2C50720028DBF8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 41DF76DE1D2C50710028DBF8 /* Rocket.Chat */;
+			target = 41DF76DE1D2C50710028DBF8 /* voip.review */;
 			targetProxy = 41DF76FF1D2C50720028DBF8 /* PBXContainerItemProxy */;
 		};
 		807FB5612046E7DD00E21429 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 807FB5572046E7DD00E21429 /* Rocket.Chat.ShareExtension */;
+			target = 807FB5572046E7DD00E21429 /* voip.review.ShareExtension */;
 			targetProxy = 807FB5602046E7DD00E21429 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -4129,7 +4129,7 @@
 			baseConfigurationReference = 7F8FBD72FB45B71A0FD5D6D5 /* Pods-Rocket.ChatTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = S6UPZG7ZR3;
+				DEVELOPMENT_TEAM = 5293KBQGPA;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = Rocket.ChatTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -4139,7 +4139,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Rocket.Chat/Rocket.Chat-Bridge.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Rocket.Chat.app/Rocket.Chat";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/voip.review.app/voip.review";
 			};
 			name = Debug;
 		};
@@ -4148,7 +4148,7 @@
 			baseConfigurationReference = 928F02D6B42FC1CD431D98BB /* Pods-Rocket.ChatTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = S6UPZG7ZR3;
+				DEVELOPMENT_TEAM = 5293KBQGPA;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = Rocket.ChatTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -4158,14 +4158,14 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Rocket.Chat/Rocket.Chat-Bridge.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Rocket.Chat.app/Rocket.Chat";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/voip.review.app/voip.review";
 			};
 			name = Release;
 		};
 		41DF770E1D2C50720028DBF8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = S6UPZG7ZR3;
+				DEVELOPMENT_TEAM = 5293KBQGPA;
 				INFOPLIST_FILE = Rocket.ChatUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -4180,7 +4180,7 @@
 		41DF770F1D2C50720028DBF8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = S6UPZG7ZR3;
+				DEVELOPMENT_TEAM = 5293KBQGPA;
 				INFOPLIST_FILE = Rocket.ChatUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -4273,7 +4273,7 @@
 			baseConfigurationReference = 334C02B09FD1E986AF2C4EB0 /* Pods-Rocket.ChatTests.beta.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = S6UPZG7ZR3;
+				DEVELOPMENT_TEAM = 5293KBQGPA;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = Rocket.ChatTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -4283,14 +4283,14 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Rocket.Chat/Rocket.Chat-Bridge.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Rocket.Chat.app/Rocket.Chat";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/voip.review.app/voip.review";
 			};
 			name = Beta;
 		};
 		41E69F0720050A310040ADB2 /* Beta */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = S6UPZG7ZR3;
+				DEVELOPMENT_TEAM = 5293KBQGPA;
 				INFOPLIST_FILE = Rocket.ChatUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -4381,7 +4381,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		41DF76DA1D2C50710028DBF8 /* Build configuration list for PBXProject "Rocket.Chat" */ = {
+		41DF76DA1D2C50710028DBF8 /* Build configuration list for PBXProject "voip.review" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				41DF77051D2C50720028DBF8 /* Debug */,
@@ -4391,7 +4391,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		41DF77071D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "Rocket.Chat" */ = {
+		41DF77071D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "voip.review" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				41DF77081D2C50720028DBF8 /* Debug */,
@@ -4401,7 +4401,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		41DF770A1D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "Rocket.ChatTests" */ = {
+		41DF770A1D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "voip.reviewTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				41DF770B1D2C50720028DBF8 /* Debug */,
@@ -4411,7 +4411,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		41DF770D1D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "Rocket.ChatUITests" */ = {
+		41DF770D1D2C50720028DBF8 /* Build configuration list for PBXNativeTarget "voip.reviewUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				41DF770E1D2C50720028DBF8 /* Debug */,
@@ -4421,7 +4421,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		807FB5662046E7DD00E21429 /* Build configuration list for PBXNativeTarget "Rocket.Chat.ShareExtension" */ = {
+		807FB5662046E7DD00E21429 /* Build configuration list for PBXNativeTarget "voip.review.ShareExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				807FB5632046E7DD00E21429 /* Debug */,
