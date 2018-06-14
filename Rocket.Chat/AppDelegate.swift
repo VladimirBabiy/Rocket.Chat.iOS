@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let auth = AuthManager.isAuthenticated() {
             AuthManager.persistAuthInformation(auth)
             AuthSettingsManager.shared.updateCachedSettings()
-            WindowManager.open(.chat)
+            WindowManager.open(.subscriptions)
 
             if let user = auth.user {
                 BugTrackingCoordinator.identifyCrashReports(withUser: user)
@@ -57,6 +57,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         let center = UNUserNotificationCenter.current()
         center.removeAllDeliveredNotifications()
+
+        if AuthManager.isAuthenticated() != nil {
+            if !SocketManager.isConnected() {
+                SocketManager.reconnect()
+            }
+        }
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
