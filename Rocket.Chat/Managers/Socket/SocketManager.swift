@@ -18,17 +18,34 @@ public typealias SocketCompletion = (WebSocket?, Bool) -> Void
 public typealias MessageCompletionObject <T: Object> = (T?) -> Void
 public typealias MessageCompletionObjectsList <T: Object> = ([T]) -> Void
 
-protocol SocketConnectionHandler {
-    func socketDidConnect(socket: SocketManager)
-    func socketDidDisconnect(socket: SocketManager)
-    func socketDidReturnError(socket: SocketManager, error: SocketError)
+enum SocketConnectionState {
+    case connected
+    case connecting
+    case disconnected
+    case waitingForNetwork
 }
 
-class SocketManager {
+protocol SocketConnectionHandler {
+    func socketDidChangeState(state: SocketConnectionState)
+}
+
+final class SocketManager {
 
     static let sharedInstance = SocketManager()
 
     var serverURL: URL?
+
+    var state: SocketConnectionState = .disconnected {
+        didSet {
+            if let enumerator = connectionHandlers.objectEnumerator() {
+                while let handler = enumerator.nextObject() {
+                    if let handler = handler as? SocketConnectionHandler {
+                        handler.socketDidChangeState(state: state)
+                    }
+                }
+            }
+        }
+    }
 
     var socket: WebSocket?
     var queue: [String: MessageCompletion] = [:]
@@ -37,7 +54,7 @@ class SocketManager {
     var isUserAuthenticated = false
 
     internal var internalConnectionHandler: SocketCompletion?
-    internal var connectionHandlers: [String: SocketConnectionHandler] = [:]
+    internal var connectionHandlers = NSMapTable<NSString, AnyObject>(keyOptions: .strongMemory, valueOptions: .weakMemory)
 
     // MARK: Connection
 
@@ -49,10 +66,13 @@ class SocketManager {
         sharedInstance.socket?.delegate = sharedInstance
         sharedInstance.socket?.pongDelegate = sharedInstance
         sharedInstance.socket?.headers = [
-            "Host": url.host ?? ""
+            "Host": url.host ?? "",
+            "User-Agent": API.userAgent
         ]
 
         sharedInstance.socket?.connect()
+
+        sharedInstance.state = .connecting
     }
 
     static func disconnect(_ completion: @escaping SocketCompletion) {
@@ -129,34 +149,41 @@ class SocketManager {
 extension SocketManager {
 
     static func reconnect() {
-        guard let auth = AuthManager.isAuthenticated() else { return }
+        guard
+            let auth = AuthManager.isAuthenticated(),
+            let infoClient = API.current()?.client(InfoClient.self),
+            let commandsClient = API.current()?.client(CommandsClient.self)
+        else {
+            return
+        }
+
+        sharedInstance.state = .connecting
 
         AuthManager.resume(auth, completion: { (response) in
             guard !response.isError() else {
                 return
             }
 
-            API.current()?.client(InfoClient.self).fetchInfo()
+            infoClient.fetchInfo()
 
-            SubscriptionManager.updateSubscriptions(auth, completion: { _ in
-                AuthSettingsManager.updatePublicSettings(auth, completion: { _ in
-
-                })
+            SubscriptionManager.updateSubscriptions(auth) {
+                AuthSettingsManager.updatePublicSettings(auth)
 
                 UserManager.userDataChanges()
                 UserManager.changes()
                 SubscriptionManager.changes(auth)
                 SubscriptionManager.subscribeRoomChanges()
+                SubscriptionManager.subscribeInAppNotifications()
                 PermissionManager.changes()
-                PermissionManager.updatePermissions()
+                infoClient.fetchPermissions()
                 CustomEmojiManager.sync()
 
-                API.current()?.client(CommandsClient.self).fetchCommands()
+                commandsClient.fetchCommands()
 
                 if let userIdentifier = auth.userId {
                     PushManager.updateUser(userIdentifier)
                 }
-            })
+            }
         })
     }
 
@@ -171,11 +198,11 @@ extension SocketManager {
 extension SocketManager {
 
     static func addConnectionHandler(token: String, handler: SocketConnectionHandler) {
-        sharedInstance.connectionHandlers[token] = handler
+        sharedInstance.connectionHandlers.setObject(handler as AnyObject, forKey: token as NSString)
     }
 
     static func removeConnectionHandler(token: String) {
-        sharedInstance.connectionHandlers.removeValue(forKey: token)
+        sharedInstance.connectionHandlers.removeObject(forKey: token as NSString)
     }
 
 }
@@ -199,18 +226,15 @@ extension SocketManager: WebSocketDelegate {
     func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
         Log.debug("[WebSocket] \(socket.currentURL)\n - did disconnect with error (\(String(describing: error)))")
 
-        isUserAuthenticated = false
-        events = [:]
-        queue = [:]
-
         if let handler = internalConnectionHandler {
             internalConnectionHandler = nil
             handler(socket, socket.isConnected)
         }
 
-        for (_, handler) in connectionHandlers {
-            handler.socketDidDisconnect(socket: self)
-        }
+        isUserAuthenticated = false
+        events = [:]
+        queue = [:]
+        state = .waitingForNetwork
     }
 
     func websocketDidReceiveData(socket: WebSocket, data: Data) {

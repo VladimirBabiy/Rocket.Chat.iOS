@@ -8,10 +8,6 @@
 
 import UIKit
 
-protocol MembersListDelegate: class {
-    func membersList(_ controller: MembersListViewController, didSelectUser user: User)
-}
-
 class MembersListViewData {
     var subscription: Subscription?
 
@@ -21,7 +17,9 @@ class MembersListViewData {
     var showing: Int = 0
     var total: Int = 0
 
-    var title: String = localized("chat.members.list.title")
+    var title: String {
+        return String(format: localized("chat.members.list.title"), total)
+    }
 
     var isShowingAllMembers: Bool {
         return showing >= total
@@ -43,24 +41,28 @@ class MembersListViewData {
         if let subscription = subscription {
             isLoadingMoreMembers = true
 
-            let request = SubscriptionMembersRequest(roomId: subscription.rid, type: subscription.type)
-            let options = APIRequestOptions.paginated(count: pageSize, offset: currentPage*pageSize)
+            let request = RoomMembersRequest(roomId: subscription.rid, type: subscription.type)
+            let options: APIRequestOptionSet = [.paginated(count: pageSize, offset: currentPage*pageSize)]
 
-            API.current()?.fetch(request, options: options, succeeded: { result in
-                self.showing += result.count ?? 0
-                self.total = result.total ?? 0
-                if let members = result.members {
-                    self.membersPages.append(members.compactMap { $0 })
+            API.current()?.fetch(request, options: options) { [weak self] response in
+                guard let strongSelf = self else { return }
+                switch response {
+                case .resource(let resource):
+                    strongSelf.showing += resource.count ?? 0
+                    strongSelf.total = resource.total ?? 0
+                    if let members = resource.members {
+                        strongSelf.membersPages.append(members.compactMap { $0 })
+                    }
+
+                    strongSelf.currentPage += 1
+
+//                    strongSelf.title = "\(localized("chat.members.list.title")) (\(strongSelf.total))"
+                    strongSelf.isLoadingMoreMembers = false
+                    completion?()
+                case .error:
+                    Alert.defaultError.present()
                 }
-
-                self.currentPage += 1
-
-                self.title = "\(localized("chat.members.list.title")) (\(self.total))"
-                self.isLoadingMoreMembers = false
-                completion?()
-            }, errored: { _ in
-                Alert.defaultError.present()
-            })
+            }
         }
     }
 }
@@ -69,40 +71,42 @@ class MembersListViewController: BaseViewController {
     @IBOutlet weak var membersTableView: UITableView!
     var loaderCell: LoaderTableViewCell!
 
-    var data = MembersListViewData()
+    var data = MembersListViewData() {
+        didSet {
+            UIView.performWithoutAnimation {
+                membersTableView?.reloadData()
+            }
 
-    weak var delegate: MembersListDelegate?
+            title = data.title
+        }
+    }
 
     @objc func refreshControlDidPull(_ sender: UIRefreshControl) {
+        refreshMembers()
+    }
+
+    func refreshMembers() {
         let data = MembersListViewData()
         data.subscription = self.data.subscription
         data.loadMoreMembers { [weak self] in
             self?.data = data
 
-            DispatchQueue.main.async {
-                if self?.membersTableView?.refreshControl?.isRefreshing ?? false {
-                    self?.membersTableView?.refreshControl?.endRefreshing()
-                }
-
-                UIView.performWithoutAnimation {
-                    self?.membersTableView?.reloadData()
-                }
+            if self?.membersTableView?.refreshControl?.isRefreshing ?? false {
+                self?.membersTableView?.refreshControl?.endRefreshing()
             }
         }
     }
 
     func loadMoreMembers() {
         data.loadMoreMembers { [weak self] in
-            DispatchQueue.main.async {
-                self?.title = self?.data.title
+            self?.title = self?.data.title
 
-                if self?.membersTableView?.refreshControl?.isRefreshing ?? false {
-                    self?.membersTableView?.refreshControl?.endRefreshing()
-                }
+            if self?.membersTableView?.refreshControl?.isRefreshing ?? false {
+                self?.membersTableView?.refreshControl?.endRefreshing()
+            }
 
-                UIView.performWithoutAnimation {
-                    self?.membersTableView?.reloadData()
-                }
+            UIView.performWithoutAnimation {
+                self?.membersTableView?.reloadData()
             }
         }
     }
@@ -178,12 +182,18 @@ extension MembersListViewController: UITableViewDataSource {
     }
 }
 
-extension MembersListViewController: UITableViewDelegate {
+extension MembersListViewController: UITableViewDelegate, UserActionSheetPresenter {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
         let user = data.member(at: indexPath.row)
-        delegate?.membersList(self, didSelectUser: user)
+        let subscription = data.subscription
+        let rect = tableView.rectForRow(at: indexPath)
+        presentActionSheetForUser(user, subscription: subscription, source: (tableView, rect)) { [weak self] action in
+            if case .remove = action {
+                self?.refreshMembers()
+            }
+        }
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {

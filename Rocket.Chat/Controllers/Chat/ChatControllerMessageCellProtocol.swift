@@ -12,7 +12,9 @@ import MobilePlayer
 import FLAnimatedImage
 import SimpleImageViewer
 
-extension ChatViewController: ChatMessageCellProtocol {
+extension ReactorListViewController: UserActionSheetPresenter { }
+
+extension ChatViewController: ChatMessageCellProtocol, UserActionSheetPresenter {
     func handleLongPress(reactionListView: ReactionListView, reactionView: ReactionView) {
 
         // set up controller
@@ -55,9 +57,12 @@ extension ChatViewController: ChatMessageCellProtocol {
 
         // on select reactor
 
-        controller.reactorListView.selectedReactor = { username in
-            controller.close(animated: true)
-            AppManager.openDirectMessage(username: username)
+        controller.reactorListView.selectedReactor = { [weak self] username, rect in
+            guard let user = User.find(username: username) else {
+                return
+            }
+
+            controller.presentActionSheetForUser(user, subscription: self?.subscription, source: (controller.view, rect))
         }
     }
 
@@ -68,8 +73,8 @@ extension ChatViewController: ChatMessageCellProtocol {
     }
 
     func handleUsernameTapMessageCell(_ message: Message, view: UIView, recognizer: UIGestureRecognizer) {
-        guard let username = message.user?.username else { return }
-        AppManager.openDirectMessage(username: username)
+        guard let user = message.user else { return }
+        presentActionSheetForUser(user, subscription: subscription, source: (view, nil))
     }
 
     func openURL(url: URL) {
@@ -88,6 +93,11 @@ extension ChatViewController: ChatMessageCellProtocol {
         controller.title = attachment.title
         controller.activityItems = [attachment.title, videoURL]
         present(controller, animated: true, completion: nil)
+    }
+
+    func openReplyMessage(message: Message) {
+        guard let username = message.user?.username else { return }
+        AppManager.openDirectMessage(username: username, replyMessageIdentifier: message.identifier, completion: nil)
     }
 
     func openImageFromCell(attachment: Attachment, thumbnail: FLAnimatedImageView) {

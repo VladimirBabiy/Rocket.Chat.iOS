@@ -16,7 +16,7 @@ protocol ReactorPresenter {
 
 typealias ReactorCell = UITableViewCell & ReactorPresenter
 
-class DefaultReactorCell: UITableViewCell, ReactorPresenter {
+final class DefaultReactorCell: UITableViewCell, ReactorPresenter {
     var reactor: String = "" {
         didSet {
             textLabel?.text = reactor
@@ -42,7 +42,7 @@ struct ReactorListViewModel: RCEmojiKitLocalizable {
     }
 }
 
-class ReactorListView: UIView {
+final class ReactorListView: UIView {
     @IBOutlet var contentView: UIView!
 
     @IBOutlet weak var reactorTableView: UITableView! {
@@ -56,7 +56,7 @@ class ReactorListView: UIView {
     }
 
     var closePressed: () -> Void = { }
-    var selectedReactor: (String) -> Void = { _ in }
+    var selectedReactor: (String, CGRect) -> Void = { _, _ in }
     var configureCell: (ReactorCell) -> Void = { _ in }
 
     var model: ReactorListViewModel = .emptyState {
@@ -154,6 +154,7 @@ extension ReactorListView: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        selectedReactor(model.reactionViewModels[indexPath.section].reactors[indexPath.row])
+        let rect = tableView.rectForRow(at: indexPath)
+        selectedReactor(model.reactionViewModels[indexPath.section].reactors[indexPath.row], rect)
     }
 }

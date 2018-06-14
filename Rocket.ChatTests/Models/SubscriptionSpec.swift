@@ -97,6 +97,68 @@ class SubscriptionSpec: XCTestCase {
         })
     }
 
+    func testMapLastSeenDateInteger() {
+        let interval = 123456789
+        let object = JSON([
+            "_id": "identifier",
+            "ls": ["$date": interval]
+        ])
+
+        let subscription = Subscription()
+        subscription.map(object, realm: nil)
+        XCTAssertEqual(subscription.lastSeen, Date.dateFromInterval(123456789))
+    }
+
+    func testMapLastSeenDateString() {
+        let lastSeen = "2018-05-16T13:08:39.118Z"
+        let object = JSON([
+            "_id": "identifier",
+            "ls": lastSeen
+        ])
+
+        let subscription = Subscription()
+        subscription.map(object, realm: nil)
+        XCTAssertEqual(subscription.lastSeen, Date.dateFromString(lastSeen))
+    }
+
+    func testMapLastSeenUpdated() {
+        let lastSeen = "2018-05-16T13:08:39.118Z"
+        let interval = 123456789
+
+        let object1 = JSON([
+            "_id": "identifier",
+            "ls": ["$date": interval]
+        ])
+
+        let object2 = JSON([
+            "_id": "identifier",
+            "ls": lastSeen
+        ])
+
+        let subscription = Subscription()
+        subscription.map(object1, realm: nil)
+        subscription.map(object2, realm: nil)
+        XCTAssertEqual(subscription.lastSeen, Date.dateFromString(lastSeen))
+    }
+
+    func testMapLastSeenUpdatedEmpty() {
+        let lastSeen = "2018-05-16T13:08:39.118Z"
+
+        let object1 = JSON([
+            "_id": "identifier",
+            "ls": lastSeen
+        ])
+
+        let object2 = JSON([
+            "_id": "identifier"
+        ])
+
+        let subscription = Subscription()
+        subscription.map(object1, realm: nil)
+        subscription.map(object2, realm: nil)
+        XCTAssertEqual(subscription.lastSeen, Date.dateFromString(lastSeen))
+    }
+
     func testMapRoom() {
         let object = JSON([
             "_id": "room-id",
@@ -107,17 +169,73 @@ class SubscriptionSpec: XCTestCase {
             "muted": [ "username" ],
             "jitsiTimeout": [ "$date": 1480377601 ],
             "ro": true,
+            "broadcast": true,
             "description": "room-description"
         ])
 
         let subscription = Subscription()
 
-        subscription.mapRoom(object)
+        subscription.mapRoom(object, realm: nil)
 
         XCTAssertEqual(subscription.roomTopic, "room-topic")
         XCTAssertEqual(subscription.roomDescription, "room-description")
         XCTAssertEqual(subscription.roomReadOnly, true)
+        XCTAssertEqual(subscription.roomBroadcast, true)
         XCTAssertEqual(subscription.roomOwnerId, "user-id")
+    }
+
+    func testMapRoomReadOnlyFalse() {
+        let object = JSON([
+            "_id": "room-id",
+            "t": "c",
+            "name": "room-name",
+            "ro": false
+        ])
+
+        let subscription = Subscription()
+        subscription.mapRoom(object, realm: nil)
+
+        XCTAssertEqual(subscription.roomReadOnly, false)
+    }
+
+    func testMapRoomReadOnlyEmpty() {
+        let object = JSON([
+            "_id": "room-id",
+            "t": "c",
+            "name": "room-name"
+        ])
+
+        let subscription = Subscription()
+        subscription.mapRoom(object, realm: nil)
+
+        XCTAssertEqual(subscription.roomReadOnly, false)
+    }
+
+    func testMapRoomBroadcastFalse() {
+        let object = JSON([
+            "_id": "room-id",
+            "t": "c",
+            "name": "room-name",
+            "broadcast": false
+        ])
+
+        let subscription = Subscription()
+        subscription.mapRoom(object, realm: nil)
+
+        XCTAssertEqual(subscription.roomBroadcast, false)
+    }
+
+    func testMapRoomBroadcastEmpty() {
+        let object = JSON([
+            "_id": "room-id",
+            "t": "c",
+            "name": "room-name"
+        ])
+
+        let subscription = Subscription()
+        subscription.mapRoom(object, realm: nil)
+
+        XCTAssertEqual(subscription.roomBroadcast, false)
     }
 
     func testSubscriptionDisplayNameHonorFullnameSettings() {
@@ -264,112 +382,5 @@ class SubscriptionSpec: XCTestCase {
         }
 
         XCTAssertEqual(subscription.directMessageUser, user, "directMessageUser is correct")
-    }
-}
-
-// MARK: Test Queries
-extension SubscriptionSpec: RealmTestCase {
-    func testFindByRoomId() throws {
-        let realm = testRealm()
-
-        let sub1 = Subscription()
-        sub1.identifier = "sub1-identifier"
-        sub1.rid = "sub1-rid"
-
-        let sub2 = Subscription()
-        sub2.identifier = "sub2-identifier"
-        sub2.rid = "sub2-rid"
-
-        try realm.write {
-            realm.add(sub1)
-            realm.add(sub2)
-        }
-
-        XCTAssertEqual(Subscription.find(rid: "sub2-rid", realm: realm), sub2)
-        XCTAssertEqual(Subscription.find(rid: "sub1-rid", realm: realm), sub1)
-    }
-
-    func testFindByNameAndType() throws {
-        let realm = testRealm()
-
-        let sub1 = Subscription()
-        sub1.identifier = "sub1-identifier"
-        sub1.name = "sub1-name"
-        sub1.type = .directMessage
-
-        let sub2 = Subscription()
-        sub2.identifier = "sub2-identifier"
-        sub2.name = "sub2-name"
-        sub2.type = .channel
-
-        try realm.write {
-            realm.add(sub1)
-            realm.add(sub2)
-        }
-
-        XCTAssertEqual(Subscription.find(name: "sub1-name", subscriptionType: [.directMessage], realm: realm), sub1)
-        XCTAssertEqual(Subscription.find(name: "sub2-name", subscriptionType: [.channel], realm: realm), sub2)
-    }
-
-    func testInitialSubscription() throws {
-        let realm = testRealm()
-
-        let auth = Auth.testInstance()
-
-        let sub1 = Subscription()
-        sub1.identifier = "sub1-identifier"
-        sub1.rid = "sub1-rid"
-        sub1.lastSeen = Date()
-        sub1.auth = auth
-
-        let sub2 = Subscription()
-        sub2.identifier = "sub2-identifier"
-        sub2.rid = "sub2-rid"
-        sub2.lastSeen = Date().addingTimeInterval(-1.0)
-        sub2.auth = auth
-
-        try realm.write {
-            realm.add(auth)
-            realm.add(sub1)
-            realm.add(sub2)
-        }
-
-        // if there's no last notification room id (user didn't launch app by tapping notification)
-        XCTAssertEqual(Subscription.initialSubscription(auth: auth), sub1)
-
-        AppManager.initialRoomId = "sub2-rid"
-
-        // if there's no last notification room id (user launched app by tapping notification)
-        XCTAssertEqual(Subscription.initialSubscription(auth: auth), sub2)
-    }
-
-    func testSetTemporaryMessagesFailed() {
-        let realm = testRealm()
-
-        let sub = Subscription.testInstance()
-
-        let msg1 = Message.testInstance("msg1")
-        msg1.subscription = sub
-        msg1.failed = false
-        msg1.temporary = true
-
-        let msg2 = Message.testInstance("msg2")
-        msg2.subscription = sub
-        msg2.failed = false
-        msg2.temporary = true
-
-        try? realm.write {
-            realm.add(sub, update: true)
-            realm.add(msg1, update: true)
-            realm.add(msg2, update: true)
-        }
-
-        sub.setTemporaryMessagesFailed()
-
-        XCTAssert(msg1.failed == true)
-        XCTAssert(msg1.temporary == false)
-
-        XCTAssert(msg2.failed == true)
-        XCTAssert(msg2.temporary == false)
     }
 }

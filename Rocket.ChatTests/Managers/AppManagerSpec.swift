@@ -22,10 +22,17 @@ class AppManagerSpec: XCTestCase {
     }
 
     func testChangeToServerIfExists() {
-        DatabaseManager.createNewDatabaseInstance(serverURL: "wss://open.rocket.chat/websocket")
+        DatabaseManager.createNewDatabaseInstance(serverURL: "https://existing.rocket.local")
 
-        XCTAssert(AppManager.changeToServerIfExists(serverUrl: "wss://open.rocket.chat/websocket"), "changes to existing server")
-        XCTAssertFalse(AppManager.changeToServerIfExists(serverUrl: "wss://none.chat/websocket"), "does not change to unexisting server")
+        guard
+            let existing = URL(string: "https://existing.rocket.local"),
+            let nonExisting = URL(string: "https://nonexisting.rocket.local")
+        else {
+            return XCTFail("url(s) can not be nil")
+        }
+
+        XCTAssert(AppManager.changeToServerIfExists(serverUrl: existing), "changes to existing server")
+        XCTAssertFalse(AppManager.changeToServerIfExists(serverUrl: nonExisting), "does not change to unexisting server")
     }
 
     func testReloadApp() {

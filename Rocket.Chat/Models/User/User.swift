@@ -18,7 +18,7 @@ enum UserStatus: String {
     case offline, online, busy, away
 }
 
-class User: BaseModel {
+final class User: BaseModel {
     @objc dynamic var username: String?
     @objc dynamic var name: String?
     var emails = List<Email>()
@@ -31,4 +31,10 @@ class User: BaseModel {
     }
 
     var utcOffset: Double?
+}
+
+extension User {
+    static func == (lhs: User, rhs: User) -> Bool {
+        return lhs.identifier == rhs.identifier
+    }
 }

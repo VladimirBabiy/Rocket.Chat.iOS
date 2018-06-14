@@ -49,6 +49,8 @@ class PushManagerSpec: XCTestCase {
     }
 
     func testHandleNotificationRaw() {
+        DatabaseManager.removeServersKey()
+
         XCTAssertFalse(PushManager.handleNotification(raw: PushNotification.testRaw()))
 
         DatabaseManager.setupTestServers()
@@ -66,7 +68,7 @@ class PushNotificationSpec: XCTestCase {
         let notification = PushNotification(raw: PushNotification.testRaw())
 
         XCTAssertEqual(notification?.roomId, "9euspXGgYsbEE5hi8")
-        XCTAssertEqual(notification?.host, "https://open.rocket.chat/")
+        XCTAssertEqual(notification?.host, URL(string: "https://open.rocket.chat/"))
     }
 }
 

@@ -9,18 +9,6 @@
 import RealmSwift
 
 extension User {
-    func hasPermission(_ permission: PermissionType, realm: Realm? = Realm.current) -> Bool {
-        guard let permissionRoles = PermissionManager.roles(for: permission, realm: realm) else { return false }
-
-        for userRole in self.roles {
-            for permissionRole in permissionRoles where userRole == permissionRole {
-                return true
-            }
-        }
-
-        return false
-    }
-
     func displayName() -> String {
         guard let settings = AuthSettingsManager.settings else {
             return username ?? ""
@@ -39,14 +27,12 @@ extension User {
         guard
             !isInvalidated,
             let username = username,
-            let auth = auth ?? AuthManager.isAuthenticated(),
-            let baseURL = auth.baseURL(),
-            let encodedUsername = username.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)
+            let auth = auth ?? AuthManager.isAuthenticated()
         else {
             return nil
         }
 
-        return URL(string: "\(baseURL)/avatar/\(encodedUsername)")
+        return User.avatarURL(forUsername: username, auth: auth)
     }
 
     func canViewAdminPanel(realm: Realm? = Realm.current) -> Bool {
@@ -54,5 +40,17 @@ extension User {
             hasPermission(.viewStatistics, realm: realm) ||
             hasPermission(.viewUserAdministration, realm: realm) ||
             hasPermission(.viewRoomAdministration, realm: realm)
+    }
+
+    static func avatarURL(forUsername username: String, auth: Auth? = nil) -> URL? {
+        guard
+            let auth = auth ?? AuthManager.isAuthenticated(),
+            let baseURL = auth.baseURL(),
+            let encodedUsername = username.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)
+        else {
+            return nil
+        }
+
+        return URL(string: "\(baseURL)/avatar/\(encodedUsername)?format=jpeg")
     }
 }

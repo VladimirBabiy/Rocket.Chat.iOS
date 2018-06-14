@@ -13,7 +13,7 @@ import SwiftyJSON
 
 class LoginRequestSpec: APITestCase {
     func testRequest() {
-        let preRequest = LoginRequest("testUsername", "testPassword")
+        let preRequest = LoginRequest(params: ["username": "testUsername", "password": "testPassword"])
         guard let request = preRequest.request(for: api) else {
             return XCTFail("request is not nil")
         }
@@ -48,7 +48,7 @@ class LoginRequestSpec: APITestCase {
 
         let json = JSON(parseJSON: jsonString)
 
-        let result = LoginResult(raw: json)
+        let result = LoginResource(raw: json)
 
         XCTAssertEqual(result.data, json["data"])
         XCTAssertEqual(result.authToken, "9HqLlyZOugoStsXCUfD_0YdwnNnunAJF8V47U3QHXSq")

@@ -9,12 +9,12 @@
 import UIKit
 import RealmSwift
 import UserNotifications
-import GoogleSignIn
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var notificationWindow: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         Launcher().prepareToLaunch(with: launchOptions)
@@ -31,12 +31,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let auth = AuthManager.isAuthenticated() {
             AuthManager.persistAuthInformation(auth)
             AuthSettingsManager.shared.updateCachedSettings()
-            WindowManager.open(.chat)
+            WindowManager.open(.subscriptions)
+
+            if let user = auth.user {
+                BugTrackingCoordinator.identifyCrashReports(withUser: user)
+            }
         } else {
             WindowManager.open(.auth(serverUrl: "", credentials: nil))
         }
 
+        initNotificationWindow()
+
         return true
+    }
+
+    func initNotificationWindow() {
+        notificationWindow = TransparentToTouchesWindow(frame: UIScreen.main.bounds)
+        notificationWindow?.rootViewController = NotificationViewController.shared
+        notificationWindow?.windowLevel = UIWindowLevelAlert
+        notificationWindow?.makeKeyAndVisible()
     }
 
     // MARK: AppDelegate LifeCycle
@@ -44,6 +57,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         let center = UNUserNotificationCenter.current()
         center.removeAllDeliveredNotifications()
+
+        if AuthManager.isAuthenticated() != nil {
+            if !SocketManager.isConnected() {
+                SocketManager.reconnect()
+            }
+        }
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
@@ -56,16 +75,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        if let url = userActivity.webpageURL, AppManager.handleDeepLink(url) != nil {
+            return true
+        }
+
+        return true
+    }
+
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
         if AppManager.handleDeepLink(url) != nil {
             return true
         }
 
-        return GIDSignIn.sharedInstance().handle(
-            url,
-            sourceApplication: options[.sourceApplication] as? String,
-            annotation: options[.annotation]
-        )
+        return false
     }
 
     // MARK: Remote Notification

@@ -8,9 +8,9 @@
 
 import RealmSwift
 import SlackTextViewController
-import SimpleImageViewer
 
 private typealias NibCellIndentifier = (nibName: String, cellIdentifier: String)
+private let kEmptyCellIdentifier = "kEmptyCellIdentifier"
 
 // swiftlint:disable file_length type_body_length
 final class ChatViewController: SLKTextViewController {
@@ -39,6 +39,7 @@ final class ChatViewController: SLKTextViewController {
                     scrollToBottomButtonIsVisible = false
                     return
                 }
+
                 let collectionViewBottom = collectionView.frame.origin.y + collectionView.frame.height
                 self.buttonScrollToBottomMarginConstraint?.constant = (collectionViewBottom - view.frame.height) - 40
             } else {
@@ -55,36 +56,29 @@ final class ChatViewController: SLKTextViewController {
 
     weak var chatTitleView: ChatTitleView?
     weak var chatPreviewModeView: ChatPreviewModeView?
-    weak var chatHeaderViewStatus: ChatHeaderViewStatus?
     var documentController: UIDocumentInteractionController?
 
     var replyView: ReplyView!
     var replyString: String = ""
     var messageToEdit: Message?
+    var lastTimeSentTypingEvent: Date?
 
     var dataController = ChatDataController()
 
     var searchResult: [(String, Any)] = []
     var searchWord: String = ""
 
-    var closeSidebarAfterSubscriptionUpdate = false
-
     var isRequestingHistory = false
     var isAppendingMessages = false
 
     var subscriptionToken: NotificationToken?
 
-    let socketHandlerToken = String.random(5)
     var messagesToken: NotificationToken!
     var messagesQuery: Results<Message>!
     var messages: [Message] = []
 
     var subscription: Subscription? {
         didSet {
-            // clean up
-            subscriptionToken?.invalidate()
-            didCancelTextEditing(self)
-
             guard
                 let subscription = subscription,
                 !subscription.isInvalidated
@@ -93,11 +87,6 @@ final class ChatViewController: SLKTextViewController {
             }
 
             resetUnreadSeparator()
-
-            if !SocketManager.isConnected() {
-                socketDidDisconnect(socket: SocketManager.sharedInstance)
-                reconnect()
-            }
 
             subscription.setTemporaryMessagesFailed()
 
@@ -114,40 +103,17 @@ final class ChatViewController: SLKTextViewController {
                 }
             }
 
-            if let oldValue = oldValue {
-                if oldValue.identifier != subscription.identifier {
-                    emptySubscriptionState()
-                } else if self.closeSidebarAfterSubscriptionUpdate {
-                    MainChatViewController.closeSideMenuIfNeeded()
-                    self.closeSidebarAfterSubscriptionUpdate = false
-                }
-            } else {
-                emptySubscriptionState()
-            }
-
+            emptySubscriptionState()
             updateSubscriptionInfo()
             markAsRead()
             typingIndicatorView?.dismissIndicator()
-
-            if let oldValue = oldValue, oldValue.identifier != subscription.identifier {
-                unsubscribe(for: oldValue)
-            }
-
             textView.text = DraftMessageManager.draftMessage(for: subscription)
         }
     }
 
+    let socketHandlerToken = String.random(5)
+
     // MARK: View Life Cycle
-
-    static var shared: ChatViewController? {
-        if let main = UIApplication.shared.delegate?.window??.rootViewController as? MainChatViewController {
-            if let nav = main.centerViewController as? UINavigationController {
-                return nav.viewControllers.first as? ChatViewController
-            }
-        }
-
-        return nil
-    }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -161,14 +127,26 @@ final class ChatViewController: SLKTextViewController {
         registerCells()
     }
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .default
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        SocketManager.addConnectionHandler(token: socketHandlerToken, handler: self)
+
         navigationController?.navigationBar.isTranslucent = false
-        navigationController?.navigationBar.barTintColor = UIColor.white
-        navigationController?.navigationBar.tintColor = UIColor(rgb: 0x5B5B5B, alphaVal: 1)
+        navigationController?.navigationBar.barTintColor = .RCNavigationBarColor()
+        navigationController?.navigationBar.tintColor = .RCBlue()
+
+        if #available(iOS 11.0, *) {
+            collectionView?.contentInsetAdjustmentBehavior = .never
+        }
 
         collectionView?.isPrefetchingEnabled = true
         collectionView?.keyboardDismissMode = .interactive
+        collectionView?.showsHorizontalScrollIndicator = false
         enableInteractiveKeyboardDismissal()
 
         isInverted = false
@@ -183,16 +161,15 @@ final class ChatViewController: SLKTextViewController {
         setupTextViewSettings()
         setupScrollToBottomButton()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(reconnect), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+        // Remove title from back button
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(
+            title: "",
+            style: .plain,
+            target: nil,
+            action: nil
+        )
+
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        SocketManager.addConnectionHandler(token: socketHandlerToken, handler: self)
-
-        if !SocketManager.isConnected() {
-            socketDidDisconnect(socket: SocketManager.sharedInstance)
-            reconnect()
-        }
-
-        subscription = .initialSubscription()
 
         view.bringSubview(toFront: activityIndicatorContainer)
         view.bringSubview(toFront: buttonScrollToBottom)
@@ -208,30 +185,11 @@ final class ChatViewController: SLKTextViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        keyboardFrame?.updateFrame()
-    }
-
-    @objc internal func reconnect() {
-        chatHeaderViewStatus?.labelTitle.text = localized("connection.connecting.banner.message")
-        chatHeaderViewStatus?.activityIndicator.startAnimating()
-        chatHeaderViewStatus?.buttonRefresh.isHidden = true
-
-        if !SocketManager.isConnected() {
-            SocketManager.reconnect()
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            if !SocketManager.isConnected() {
-                self.chatHeaderViewStatus?.labelTitle.text = localized("connection.offline.banner.message")
-                self.chatHeaderViewStatus?.activityIndicator.stopAnimating()
-                self.chatHeaderViewStatus?.buttonRefresh.isHidden = false
-            }
-        }
+        navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-
         updateChatPreviewModeViewConstraints()
     }
 
@@ -244,8 +202,8 @@ final class ChatViewController: SLKTextViewController {
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let nav = segue.destination as? UINavigationController, segue.identifier == "Channel Info" {
-            if let controller = nav.viewControllers.first as? ChannelInfoViewController {
+        if segue.identifier == "Channel Actions", let nav = segue.destination as? UINavigationController {
+            if let controller = nav.viewControllers.first as? ChannelActionsViewController {
                 if let subscription = self.subscription {
                     controller.subscription = subscription
                 }
@@ -253,7 +211,7 @@ final class ChatViewController: SLKTextViewController {
         }
     }
 
-    fileprivate func setupTextViewSettings() {
+    private func setupTextViewSettings() {
         textView.registerMarkdownFormattingSymbol("*", withTitle: "Bold")
         textView.registerMarkdownFormattingSymbol("_", withTitle: "Italic")
         textView.registerMarkdownFormattingSymbol("~", withTitle: "Strike")
@@ -264,16 +222,15 @@ final class ChatViewController: SLKTextViewController {
         registerPrefixes(forAutoCompletion: ["@", "#", "/", ":"])
     }
 
-    fileprivate func setupTitleView() {
+    private func setupTitleView() {
         let view = ChatTitleView.instantiateFromNib()
-        self.navigationItem.titleView = view
+        view?.subscription = subscription
+        view?.delegate = self
+        navigationItem.titleView = view
         chatTitleView = view
-
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(chatTitleViewDidPressed))
-        chatTitleView?.addGestureRecognizer(gesture)
     }
 
-    fileprivate func setupScrollToBottomButton() {
+    private func setupScrollToBottomButton() {
         buttonScrollToBottom.layer.cornerRadius = 25
         buttonScrollToBottom.layer.borderColor = UIColor.lightGray.cgColor
         buttonScrollToBottom.layer.borderWidth = 1
@@ -283,7 +240,7 @@ final class ChatViewController: SLKTextViewController {
         return ChatCollectionViewFlowLayout()
     }
 
-    fileprivate func registerCells() {
+    private func registerCells() {
         let collectionViewCells: [NibCellIndentifier] = [
             (nibName: "ChatLoaderCell", cellIdentifier: ChatLoaderCell.identifier),
             (nibName: "ChatMessageCell", cellIdentifier: ChatMessageCell.identifier),
@@ -292,6 +249,9 @@ final class ChatViewController: SLKTextViewController {
             (nibName: "ChatChannelHeaderCell", cellIdentifier: ChatChannelHeaderCell.identifier),
             (nibName: "ChatDirectMessageHeaderCell", cellIdentifier: ChatDirectMessageHeaderCell.identifier)
         ]
+
+        // This cell is used in case no other cell is available or useful.
+        collectionView?.register(UICollectionViewCell.self, forCellWithReuseIdentifier: kEmptyCellIdentifier)
 
         collectionViewCells.forEach {
             collectionView?.register(UINib(
@@ -336,10 +296,7 @@ final class ChatViewController: SLKTextViewController {
 
     func resetUnreadSeparator() {
         dataController.dismissUnreadSeparator = true
-        syncCollectionView()
-        dataController.unreadSeparator = false
-        dataController.dismissUnreadSeparator = false
-        dataController.lastSeen = subscription?.lastSeen ?? Date()
+        dataController.lastSeen = Date()
     }
 
     // MARK: Handling Keyboard
@@ -428,8 +385,7 @@ final class ChatViewController: SLKTextViewController {
         stopReplying()
 
         dataController.dismissUnreadSeparator = true
-        dataController.lastSeen = subscription?.lastSeen ?? Date()
-        syncCollectionView()
+        dataController.lastSeen = Date()
 
         let text = "\(messageText)\(replyString)"
 
@@ -472,12 +428,37 @@ final class ChatViewController: SLKTextViewController {
     override func textViewDidChange(_ textView: UITextView) {
         guard let subscription = self.subscription else { return }
 
+        // Intervals
+        let kDefaultTypingInterval = 3 // seconds
+        let kDefaultTypingIntervalCheck = 5 // seconds
+
+        // Update draft text
         DraftMessageManager.update(draftMessage: textView.text, for: subscription)
 
         if textView.text?.isEmpty ?? true {
             SubscriptionManager.sendTypingStatus(subscription, isTyping: false)
         } else {
+            // We're not calling this event every char because the web starts flickering
+            // the "typing" view.
+            if let lastTimeSentTypingEvent = lastTimeSentTypingEvent {
+                if Int(Date().timeIntervalSince(lastTimeSentTypingEvent)) < kDefaultTypingInterval {
+                    return
+                }
+            }
+
+            // User is typing right now
+            lastTimeSentTypingEvent = Date()
             SubscriptionManager.sendTypingStatus(subscription, isTyping: true)
+
+            // After 5 seconds without writing, we send an event
+            // telling the server that user is not typing anymore
+            DispatchQueue.main.asyncAfter(deadline: .now() + TimeInterval(kDefaultTypingIntervalCheck)) { [weak self] in
+                if let lastTimeSentTypingEvent = self?.lastTimeSentTypingEvent {
+                    if Int(Date().timeIntervalSince(lastTimeSentTypingEvent)) >= kDefaultTypingIntervalCheck {
+                        SubscriptionManager.sendTypingStatus(subscription, isTyping: false)
+                    }
+                }
+            }
         }
     }
 
@@ -501,7 +482,7 @@ final class ChatViewController: SLKTextViewController {
         client?.runCommand(command: command, params: params, roomId: subscription.rid, errored: alertAPIError)
     }
 
-    fileprivate func sendTextMessage(text: String) {
+    private func sendTextMessage(text: String) {
         guard
             let subscription = subscription,
             text.count > 0
@@ -513,12 +494,12 @@ final class ChatViewController: SLKTextViewController {
         client.sendMessage(text: text, subscription: subscription)
     }
 
-    fileprivate func editTextMessage(message: Message, text: String) {
+    private func editTextMessage(message: Message, text: String) {
         guard let client = API.current()?.client(MessagesClient.self) else { return Alert.defaultError.present() }
         client.updateMessage(message, text: text)
     }
 
-    fileprivate func updateCellForMessage(identifier: String) {
+    private func updateCellForMessage(identifier: String) {
         guard let indexPath = self.dataController.indexPathOfMessage(identifier: identifier) else { return }
 
         UIView.performWithoutAnimation {
@@ -526,7 +507,7 @@ final class ChatViewController: SLKTextViewController {
         }
     }
 
-    fileprivate func chatLogIsAtBottom() -> Bool {
+    private func chatLogIsAtBottom() -> Bool {
         guard let collectionView = collectionView else { return false }
 
         let height = collectionView.bounds.height
@@ -539,12 +520,10 @@ final class ChatViewController: SLKTextViewController {
 
     // MARK: Subscription
 
-    fileprivate func markAsRead() {
+    private func markAsRead() {
         guard let subscription = subscription else { return }
 
-        SubscriptionManager.markAsRead(subscription) { _ in
-            // Nothing, for now
-        }
+        API.current()?.client(SubscriptionsClient.self).markAsRead(subscription: subscription)
     }
 
     internal func subscribe(for subscription: Subscription) {
@@ -587,11 +566,6 @@ final class ChatViewController: SLKTextViewController {
             self.collectionView?.deleteItems(at: indexPaths)
         }, completion: { _ in
             CATransaction.commit()
-
-            if self.closeSidebarAfterSubscriptionUpdate {
-                MainChatViewController.closeSideMenuIfNeeded()
-                self.closeSidebarAfterSubscriptionUpdate = false
-            }
         })
     }
 
@@ -622,6 +596,7 @@ final class ChatViewController: SLKTextViewController {
             })
         }
 
+        updateSubscriptionRoles()
         updateMessageSendingPermission()
     }
 
@@ -660,7 +635,7 @@ final class ChatViewController: SLKTextViewController {
         }
     }
 
-    fileprivate func updateMessagesQueryNotificationBlock() {
+    private func updateMessagesQueryNotificationBlock() {
         messagesToken?.invalidate()
         messagesToken = messagesQuery.observe { [unowned self] changes in
             guard case .update(_, _, let insertions, let modifications) = changes else {
@@ -676,6 +651,7 @@ final class ChatViewController: SLKTextViewController {
                 }
 
                 self.messages.append(contentsOf: newMessages)
+
                 self.appendMessages(messages: newMessages, completion: {
                     self.markAsRead()
                 })
@@ -720,40 +696,46 @@ final class ChatViewController: SLKTextViewController {
         }, completion: nil)
     }
 
-    func loadHistoryFromRemote(date: Date?) {
+    func loadHistoryFromRemote(date: Date?, loadNextPage: Bool = true) {
         guard let subscription = subscription else { return }
 
         let tempSubscription = Subscription(value: subscription)
 
         if date == nil {
-            showLoadingMessagesHeaderStatusView()
+//            showLoadingMessagesHeaderStatusView()
         }
 
-        MessageManager.getHistory(tempSubscription, lastMessageDate: date) { [weak self] messages in
+        MessageManager.getHistory(tempSubscription, lastMessageDate: date) { [weak self] nextPageDate in
             DispatchQueue.main.async {
                 self?.activityIndicator.stopAnimating()
 
                 if date == nil {
-                    self?.hideHeaderStatusView()
+//                    self?.hideHeaderStatusView()
                 }
 
-                self?.isRequestingHistory = false
-                self?.loadMoreMessagesFrom(date: date, loadRemoteHistory: false)
+                if loadNextPage {
+                    self?.isRequestingHistory = false
+                    self?.loadMoreMessagesFrom(date: date, loadRemoteHistory: false)
+                }
 
-                if messages.count == 0 {
+                if nextPageDate == nil {
                     self?.dataController.loadedAllMessages = true
                     self?.syncCollectionView()
                 } else {
                     self?.dataController.loadedAllMessages = false
                 }
+
+                if let nextPageDate = nextPageDate, loadNextPage {
+                    self?.loadHistoryFromRemote(date: nextPageDate, loadNextPage: false)
+                }
             }
         }
     }
 
-    fileprivate func loadMoreMessagesFrom(date: Date?, loadRemoteHistory: Bool = true) {
+    private func loadMoreMessagesFrom(date: Date?, loadRemoteHistory: Bool = true) {
         guard let subscription = subscription else { return }
 
-        if isRequestingHistory || dataController.loadedAllMessages {
+        if isRequestingHistory {
             return
         }
 
@@ -788,7 +770,7 @@ final class ChatViewController: SLKTextViewController {
         }
     }
 
-    fileprivate func appendMessages(messages: [Message], completion: VoidCompletion?) {
+    private func appendMessages(messages: [Message], completion: VoidCompletion?) {
         guard let subscription = subscription, let collectionView = collectionView, !subscription.isInvalidated else {
             return
         }
@@ -843,6 +825,12 @@ final class ChatViewController: SLKTextViewController {
 
             // No new data? Don't update it then
             if objs.count == 0 {
+                if self.dataController.dismissUnreadSeparator {
+                    DispatchQueue.main.async {
+                        self.syncCollectionView()
+                    }
+                }
+
                 DispatchQueue.main.async {
                     self.isAppendingMessages = false
                     completion?()
@@ -864,7 +852,7 @@ final class ChatViewController: SLKTextViewController {
         }
     }
 
-    fileprivate func showChatPreviewModeView() {
+    private func showChatPreviewModeView() {
         chatPreviewModeView?.removeFromSuperview()
 
         if let previewView = ChatPreviewModeView.instantiateFromNib() {
@@ -893,7 +881,7 @@ final class ChatViewController: SLKTextViewController {
         }
     }
 
-    fileprivate func isContentBiggerThanContainerHeight() -> Bool {
+    private func isContentBiggerThanContainerHeight() -> Bool {
         if let contentHeight = self.collectionView?.contentSize.height {
             if let collectionViewHeight = self.collectionView?.frame.height {
                 if contentHeight < collectionViewHeight {
@@ -907,8 +895,19 @@ final class ChatViewController: SLKTextViewController {
 
     // MARK: IBAction
 
-    @objc func chatTitleViewDidPressed(_ sender: AnyObject) {
-        performSegue(withIdentifier: "Channel Info", sender: sender)
+    @IBAction func showSearchMessages() {
+        guard
+            let storyboard = storyboard,
+            let messageList = storyboard.instantiateViewController(withIdentifier: "MessagesListViewController") as? MessagesListViewController
+        else {
+            return
+        }
+
+        messageList.data.subscription = subscription
+        messageList.data.isSearchingMessages = true
+        let searchMessagesNav = BaseNavigationController(rootViewController: messageList)
+
+        present(searchMessagesNav, animated: true, completion: nil)
     }
 
     @IBAction func buttonScrollToBottomPressed(_ sender: UIButton) {
@@ -939,7 +938,7 @@ extension ChatViewController {
             let obj = dataController.itemAt(indexPath),
             !(obj.message?.isInvalidated ?? false)
         else {
-            return UICollectionViewCell()
+            return cellForEmpty(at: indexPath)
         }
 
         if obj.type == .message {
@@ -971,12 +970,20 @@ extension ChatViewController {
 
     // MARK: Cells
 
+    func cellForEmpty(at indexPath: IndexPath) -> UICollectionViewCell {
+        if let cell = collectionView?.dequeueReusableCell(withReuseIdentifier: kEmptyCellIdentifier, for: indexPath) {
+            return cell
+        }
+
+        return UICollectionViewCell()
+    }
+
     func cellForMessage(_ obj: ChatData, at indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView?.dequeueReusableCell(
             withReuseIdentifier: ChatMessageCell.identifier,
             for: indexPath
         ) as? ChatMessageCell else {
-            return UICollectionViewCell()
+            return cellForEmpty(at: indexPath)
         }
 
         cell.delegate = self
@@ -995,7 +1002,7 @@ extension ChatViewController {
             withReuseIdentifier: ChatMessageDaySeparator.identifier,
             for: indexPath
         ) as? ChatMessageDaySeparator else {
-            return UICollectionViewCell()
+            return cellForEmpty(at: indexPath)
         }
 
         cell.labelTitle.text = RCDateFormatter.date(obj.timestamp)
@@ -1007,7 +1014,7 @@ extension ChatViewController {
             withReuseIdentifier: ChatMessageUnreadSeparator.identifier,
             for: indexPath
         ) as? ChatMessageUnreadSeparator else {
-            return UICollectionViewCell()
+            return cellForEmpty(at: indexPath)
         }
 
         cell.labelTitle.text = localized("chat.unread_separator")
@@ -1019,7 +1026,7 @@ extension ChatViewController {
             withReuseIdentifier: ChatChannelHeaderCell.identifier,
             for: indexPath
         ) as? ChatChannelHeaderCell else {
-            return UICollectionViewCell()
+            return cellForEmpty(at: indexPath)
         }
 
         cell.subscription = subscription
@@ -1031,7 +1038,7 @@ extension ChatViewController {
             withReuseIdentifier: ChatDirectMessageHeaderCell.identifier,
             for: indexPath
         ) as? ChatDirectMessageHeaderCell else {
-            return UICollectionViewCell()
+            return cellForEmpty(at: indexPath)
         }
         cell.subscription = subscription
         return cell
@@ -1042,7 +1049,7 @@ extension ChatViewController {
             withReuseIdentifier: ChatLoaderCell.identifier,
             for: indexPath
         ) as? ChatLoaderCell else {
-            return UICollectionViewCell()
+            return cellForEmpty(at: indexPath)
         }
 
         return cell
@@ -1121,6 +1128,7 @@ extension ChatViewController {
                 loadMoreMessagesFrom(date: message.createdAt)
             }
         }
+
         resetScrollToBottomButtonPosition()
     }
 }
@@ -1149,7 +1157,7 @@ extension ChatViewController: ChatPreviewModeViewProtocol {
 
 extension ChatViewController {
 
-    fileprivate func updateMessageSendingPermission() {
+    private func updateMessageSendingPermission() {
         guard
             let subscription = subscription,
             let currentUser = AuthManager.currentUser(),
@@ -1168,7 +1176,7 @@ extension ChatViewController {
         }
     }
 
-    fileprivate func blockMessageSending(reason: String) {
+    private func blockMessageSending(reason: String) {
         textInputbar.textView.placeholder = reason
         textInputbar.backgroundColor = .white
         textInputbar.isUserInteractionEnabled = false
@@ -1176,7 +1184,7 @@ extension ChatViewController {
         rightButton.isEnabled = false
     }
 
-    fileprivate func allowMessageSending() {
+    private func allowMessageSending() {
         textInputbar.textView.placeholder = ""
         textInputbar.backgroundColor = .backgroundWhite
         textInputbar.isUserInteractionEnabled = true
@@ -1215,4 +1223,13 @@ extension ChatViewController: KeyboardFrameViewDelegate {
     var keyboardProxyView: UIView? {
         return textInputbar.inputAccessoryView.superview
     }
+}
+
+extension ChatViewController: SocketConnectionHandler {
+
+    func socketDidChangeState(state: SocketConnectionState) {
+        Log.debug("[ChatViewController] socketDidChangeState: \(state)")
+        chatTitleView?.state = state
+    }
+
 }

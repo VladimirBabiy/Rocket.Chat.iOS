@@ -151,7 +151,7 @@ struct DatabaseManager {
         servers.append([
             ServerPersistKeys.databaseName: "\(String.random()).realm",
             ServerPersistKeys.serverURL: serverURL
-            ])
+        ])
 
         let index = servers.count - 1
         defaults.set(servers, forKey: ServerPersistKeys.servers)
@@ -193,6 +193,10 @@ struct DatabaseManager {
             return nil
         }
 
+        #if DEBUG
+        Log.debug("Realm path: \(url.appendingPathComponent(databaseName))")
+        #endif
+
         return Realm.Configuration(
             fileURL: url.appendingPathComponent(databaseName),
             deleteRealmIfMigrationNeeded: true
@@ -205,9 +209,13 @@ extension DatabaseManager {
      This method returns an index for the server with this URL if it already exists.
      - parameter serverUrl: The URL of the server
      */
-    static func serverIndexForUrl(_ serverUrl: String) -> Int? {
+    static func serverIndexForUrl(_ serverUrl: URL) -> Int? {
         return servers?.index {
-            $0[ServerPersistKeys.serverURL] == serverUrl
+            guard let url = URL(string: $0[ServerPersistKeys.serverURL] ?? "") else {
+                return false
+            }
+
+            return url.host == serverUrl.host
         }
     }
 }
