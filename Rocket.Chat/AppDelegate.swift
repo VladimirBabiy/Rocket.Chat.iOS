@@ -15,6 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     var notificationWindow: UIWindow?
+    static let Server = "https://sb-c.voip.review/"//"https://c.voip.review"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         Launcher().prepareToLaunch(with: launchOptions)
@@ -37,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 BugTrackingCoordinator.identifyCrashReports(withUser: user)
             }
         } else {
-            WindowManager.open(.auth(serverUrl: "", credentials: nil))
+            WindowManager.open(.auth(serverUrl: AppDelegate.Server, credentials: nil))
         }
 
         initNotificationWindow()

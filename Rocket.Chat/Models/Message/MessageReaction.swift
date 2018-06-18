@@ -18,7 +18,7 @@ final class MessageReaction: Object {
         self.emoji = emoji
 
         self.usernames.removeAll()
-        json["usernames"].array?.compactMap {
+        json["usernames"].array?.flatMap {
             $0.string
         }.forEach(self.usernames.append)
     }

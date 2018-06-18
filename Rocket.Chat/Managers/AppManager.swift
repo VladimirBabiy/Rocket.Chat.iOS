@@ -18,6 +18,7 @@ struct AppManager {
      that require a unique URL to be used.
     */
     private static let kApplicationServerURLKey = "RC_SERVER_URL"
+    private static let DefaultServer = AppDelegate.Server
 
     /**
      The app allows the user to fix a URL and disable the multi-server support
@@ -30,8 +31,8 @@ struct AppManager {
         if let serverURL = Bundle.main.object(forInfoDictionaryKey: kApplicationServerURLKey) as? String {
             return URL(string: serverURL)
         }
-
-        return nil
+        
+        return URL(string: DefaultServer)
     }
 
     /**
@@ -163,7 +164,7 @@ extension AppManager {
 
                     WindowManager.open(.subscriptions)
                 } else {
-                    WindowManager.open(.auth(serverUrl: "", credentials: nil))
+                    WindowManager.open(.auth(serverUrl: AppDelegate.Server, credentials: nil))
                 }
             }
         }

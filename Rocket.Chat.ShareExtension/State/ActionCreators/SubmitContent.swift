@@ -99,7 +99,7 @@ func submitFiles(store: SEStore, completion: @escaping (() -> Void)) {
 }
 
 func submitMessages(store: SEStore, completion: @escaping (() -> Void)) {
-    var messageRequests = store.contentRequests.compactMap { index, request -> (index: Int, request: SendMessageRequest)? in
+     var messageRequests = store.contentRequests.compactMap { index, request -> (index: Int, request: SendMessageRequest)? in
         switch request {
         case .text(let request):
             return (index, request)

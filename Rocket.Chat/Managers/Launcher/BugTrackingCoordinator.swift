@@ -52,6 +52,8 @@ struct BugTrackingCoordinator: LauncherProtocol {
 
         #if BETA || DEBUG
         Instabug.start(withToken: instabug, invocationEvent: .floatingButton)
+        #else
+        //Instabug.start(withToken: instabug, invocationEvent: .shake)
         #endif
     }
 

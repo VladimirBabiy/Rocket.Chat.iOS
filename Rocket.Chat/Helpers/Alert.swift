@@ -6,7 +6,8 @@
 //  Copyright © 2017 Rocket.Chat. All rights reserved.
 //
 
-import MBProgressHUD
+//import MBProgressHUD
+import UIKit
 
 protocol Alerter: class {
     func alert(title: String, message: String, handler: ((UIAlertAction) -> Void)?)
@@ -42,7 +43,7 @@ extension UIViewController: Alerter {
     }
 
     func alertSuccess(title: String, completion: (() -> Void)? = nil) {
-        DispatchQueue.main.async {
+        /*DispatchQueue.main.async {
             let successHUD = MBProgressHUD.showAdded(to: self.view, animated: true)
             successHUD.mode = .customView
 
@@ -57,7 +58,7 @@ extension UIViewController: Alerter {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: {
                 completion?()
             })
-        }
+        }*/
     }
 }
 

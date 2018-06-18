@@ -10,7 +10,7 @@ def database_pods
 end
 
 def ui_pods
-  pod 'MBProgressHUD', '~> 1.1.0'
+  #pod 'MBProgressHUD', '~> 1.1.0'
 end
 
 def shared_pods

@@ -1,8 +1,8 @@
 PODS:
-  - 1PasswordExtension (1.8.5)
-  - Crashlytics (3.10.1):
-    - Fabric (~> 1.7.5)
-  - Fabric (1.7.6)
+  - 1PasswordExtension (1.8.4)
+  - Crashlytics (3.9.3):
+    - Fabric (~> 1.7.2)
+  - Fabric (1.7.2)
   - FLAnimatedImage (1.0.12)
   - FLEX (2.4.0)
   - Instabug (7.13):
@@ -46,7 +46,6 @@ DEPENDENCIES:
   - Fabric
   - FLEX (~> 2.0)
   - Instabug
-  - MBProgressHUD (~> 1.1.0)
   - MobilePlayer
   - Nuke-FLAnimatedImage-Plugin
   - OAuthSwift
@@ -68,7 +67,6 @@ SPEC REPOS:
     - FLAnimatedImage
     - FLEX
     - Instabug
-    - MBProgressHUD
     - MobilePlayer
     - Nuke
     - Nuke-FLAnimatedImage-Plugin
@@ -102,9 +100,9 @@ CHECKOUT OPTIONS:
     :git: https://github.com/rafaelks/SlackTextViewController.git
 
 SPEC CHECKSUMS:
-  1PasswordExtension: 0e95bdea64ec8ff2f4f693be5467a09fac42a83d
-  Crashlytics: aee1a064cbbf99b32efa3f056a5f458d846bc8ff
-  Fabric: f8d42c893bb187326a7968b62abe55c36a987a46
+  1PasswordExtension: e775a29310c65851e5a6cec1afc349ab4e334e47
+  Crashlytics: dbb07d01876c171c5ccbdf7826410380189e452c
+  Fabric: 9cd6a848efcf1b8b07497e0b6a2e7d336353ba15
   FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
   FLEX: bd1a39e55b56bb413b6f1b34b3c10a0dc44ef079
   Instabug: 81ccd646e7fd2e3a243c5e61ae6af69c72328373
@@ -126,5 +124,6 @@ SPEC CHECKSUMS:
   SwiftyJSON: c29297daf073d2aa016295d5809cdd68045c39b3
 
 PODFILE CHECKSUM: 0af4673565909cbfda00f61124b8286f6433aff3
+
 
 COCOAPODS: 1.5.3

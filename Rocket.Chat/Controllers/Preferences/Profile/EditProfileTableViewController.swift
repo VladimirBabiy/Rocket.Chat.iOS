@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import MBProgressHUD
+//import MBProgressHUD
 import SwiftyJSON
 
 // swiftlint:disable file_length type_body_length
@@ -151,7 +151,7 @@ final class EditProfileTableViewController: UITableViewController, MediaPicker {
     func fetchUserData() {
         avatarButton.isHidden = true
 
-        let fetchUserLoader = MBProgressHUD.showAdded(to: self.view, animated: true)
+     let fetchUserLoader = MBProgressHUD.showAdded(to: self.view, animated: true)
         fetchUserLoader.mode = .indeterminate
 
         let stopLoading = {

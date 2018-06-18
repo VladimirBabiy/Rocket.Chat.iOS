@@ -37,7 +37,7 @@ final class ChatDataController {
     var data: [ChatData] = [] {
         didSet {
             messagesUsernames.removeAll()
-            messagesUsernames.formUnion(data.compactMap { $0.message?.user?.username })
+            messagesUsernames.formUnion(data.flatMap { $0.message?.user?.username })
         }
     }
 
